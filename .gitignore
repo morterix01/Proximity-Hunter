@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Secrets / local config
+.env
+backend/.env
+firebase-service-account.json
+**/GoogleService-Info.plist
+
+# iOS — the .xcodeproj is generated from ios/project.yml by XcodeGen
+ios/GlitchHunter.xcodeproj/
+ios/GlitchHunter/Info.plist
+ios/build/
+DerivedData/
+*.xcuserstate
+.swiftpm/
+
+# OS / editor
+.DS_Store
+Thumbs.db

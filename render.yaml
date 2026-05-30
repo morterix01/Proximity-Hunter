@@ -1,0 +1,20 @@
+# Render.com Blueprint — free, no credit card.
+# Deploys the read API. Set DATABASE_URL (your Neon connection string) in the
+# Render dashboard. Free web services spin down after ~15 min idle and cold-start
+# in ~50s — fine for a hobby app; the iOS app and preview tolerate it.
+services:
+  - type: web
+    name: glitchhunter-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false            # set in dashboard: postgresql+asyncpg://...?ssl=require
+      - key: GLITCH_ERROR_THRESHOLD
+        value: "60"
+      - key: GLITCH_SUPER_THRESHOLD
+        value: "30"

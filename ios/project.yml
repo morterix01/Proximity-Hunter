@@ -1,0 +1,59 @@
+# XcodeGen spec — generates GlitchHunter.xcodeproj from the Swift sources.
+# Used by CI so the app can be built without committing a fragile .xcodeproj.
+#   brew install xcodegen && cd ios && xcodegen generate
+name: GlitchHunter
+options:
+  bundleIdPrefix: com.glitchhunter
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    minVersion: "10.0.0"
+
+targets:
+  GlitchHunter:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: GlitchHunter
+    info:
+      path: GlitchHunter/Info.plist
+      properties:
+        CFBundleDisplayName: GlitchHunter
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        # let a card tap deep-link into the Amazon app
+        LSApplicationQueriesSchemes:
+          - com.amazon.mobile.shopping
+        # allow cleartext http to a LAN/localhost backend during development
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.glitchhunter.app
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1"      # iPhone
+        SWIFT_VERSION: "5.0"
+        GENERATE_INFOPLIST_FILE: NO
+    dependencies:
+      - package: Firebase
+        product: FirebaseCore
+      - package: Firebase
+        product: FirebaseMessaging
+
+schemes:
+  GlitchHunter:
+    build:
+      targets:
+        GlitchHunter: all
+    run:
+      config: Debug

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GlitchHunter — Anteprima (iPhone 13 Pro)</title>
+<style>
+  :root{
+    --bg:#0B0B10; --green:#00FFA3; --red:#FF3366; --cyan:#22E0FF; --violet:#9B5CFF;
+    --text:#FFFFFF; --text2:rgba(255,255,255,.62);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:30px 12px;
+    background:radial-gradient(900px 600px at 15% 0%,#16131f 0%,transparent 55%),radial-gradient(900px 700px at 90% 100%,#0a1a1c 0%,transparent 55%),#050507;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--text);}
+  .stage{display:flex; flex-direction:column; align-items:center; gap:16px;}
+  .cap{color:#5d5d6b; font-size:12.5px; letter-spacing:.3px; text-align:center; max-width:440px; line-height:1.5;}
+
+  /* iPhone 13 Pro frame */
+  .device{--w:390px; --h:844px; position:relative; width:calc(var(--w) + 26px); height:calc(var(--h) + 26px);
+    background:linear-gradient(150deg,#43434c,#0a0a0e 45%,#2c2c34); border-radius:64px; padding:13px;
+    box-shadow:0 0 0 2px #000,0 40px 90px rgba(0,0,0,.7),inset 0 0 4px rgba(255,255,255,.3);}
+  .device::before{content:""; position:absolute; left:-3px; top:175px; width:3px; height:32px; background:#17171c; border-radius:3px; box-shadow:0 54px 0 #17171c,0 116px 0 #17171c;}
+  .btn-pwr{position:absolute; right:-3px; top:215px; width:3px; height:92px; background:#17171c; border-radius:3px;}
+  .screen{position:relative; width:var(--w); height:var(--h); background:var(--bg); border-radius:51px; overflow:hidden;}
+
+  /* futuristic backdrop */
+  .aurora{position:absolute; inset:-30%; z-index:0; filter:blur(60px); opacity:.5;}
+  .aurora span{position:absolute; border-radius:50%; mix-blend-mode:screen; animation:drift 18s ease-in-out infinite;}
+  .aurora .a1{width:380px; height:380px; background:radial-gradient(circle,#00ffa3,transparent 60%); top:-40px; left:-60px;}
+  .aurora .a2{width:340px; height:340px; background:radial-gradient(circle,#9b5cff,transparent 60%); bottom:40px; right:-70px; animation-delay:-6s;}
+  .aurora .a3{width:300px; height:300px; background:radial-gradient(circle,#22e0ff,transparent 60%); top:42%; left:30%; animation-delay:-11s;}
+  @keyframes drift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(40px,30px) scale(1.15);}66%{transform:translate(-30px,20px) scale(.9);}}
+  .grid-bg{position:absolute; inset:0; z-index:0; opacity:.16;
+    background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);
+    background-size:34px 34px; mask-image:radial-gradient(circle at 50% 30%,#000 30%,transparent 75%);}
+  .vignette{position:absolute; inset:0; z-index:1; pointer-events:none; background:radial-gradient(120% 80% at 50% 0%,transparent 55%,rgba(0,0,0,.55) 100%);}
+
+  .notch{position:absolute; top:0; left:50%; transform:translateX(-50%); width:162px; height:30px; background:#000; border-radius:0 0 20px 20px; z-index:50;}
+  .notch::after{content:""; position:absolute; top:11px; left:50%; transform:translateX(-50%); width:44px; height:5px; background:#0c0c10; border-radius:3px;}
+  .notch::before{content:""; position:absolute; top:9px; right:32px; width:9px; height:9px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#2a3550,#07070a 70%);}
+
+  .statusbar{position:absolute; top:0; left:0; right:0; height:46px; z-index:55; display:flex; align-items:flex-end; justify-content:space-between; padding:0 26px 6px; font-size:14px; font-weight:600; pointer-events:none;}
+  .statusbar .right{display:flex; align-items:center; gap:6px;}
+  .sig{display:flex; align-items:flex-end; gap:2px; height:11px;}
+  .sig i{width:3px; background:#fff; border-radius:1px;}
+  .sig i:nth-child(1){height:4px;}.sig i:nth-child(2){height:6px;}.sig i:nth-child(3){height:8px;}.sig i:nth-child(4){height:11px;}
+  .batt{width:24px; height:12px; border:1.4px solid rgba(255,255,255,.85); border-radius:3px; position:relative; padding:1.5px;}
+  .batt::after{content:""; position:absolute; right:-3px; top:3px; width:2px; height:5px; background:rgba(255,255,255,.85); border-radius:0 1px 1px 0;}
+  .batt span{display:block; height:100%; width:82%; background:#fff; border-radius:1px;}
+
+  /* app */
+  .app{position:absolute; inset:0; z-index:5; padding-top:46px; display:flex; flex-direction:column;}
+  .header{padding:6px 18px 2px; display:flex; align-items:center; justify-content:space-between;}
+  .brand{display:flex; flex-direction:column; gap:3px;}
+  .glitch{position:relative; font-size:30px; font-weight:900; letter-spacing:-.6px; color:#eafff6; line-height:1; text-shadow:0 0 22px rgba(0,255,163,.45); cursor:pointer;}
+  .glitch::before,.glitch::after{content:"GlitchHunter"; position:absolute; left:0; top:0; width:100%;}
+  .glitch::before{color:var(--cyan); animation:gl1 3.6s infinite steps(2,end); opacity:0;}
+  .glitch::after{color:var(--red); animation:gl2 3.6s infinite steps(2,end); opacity:0;}
+  @keyframes gl1{0%,92%,100%{transform:translate(0);opacity:0;}93%{transform:translate(-2px,-1px);opacity:.9;}96%{transform:translate(2px,1px);opacity:.9;}}
+  @keyframes gl2{0%,92%,100%{transform:translate(0);opacity:0;}94%{transform:translate(2px,1px);opacity:.85;}97%{transform:translate(-2px,-1px);opacity:.85;}}
+  .sub{font-size:11.5px; color:var(--text2);}
+  .live{display:flex; align-items:center; gap:6px; padding:6px 11px; border-radius:999px; background:rgba(0,255,163,.08); border:1px solid rgba(0,255,163,.3); font-size:10.5px; font-weight:700; color:var(--green); letter-spacing:.4px;}
+  .radar{position:relative; width:8px; height:8px;}
+  .radar::before{content:""; position:absolute; inset:0; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green);}
+  .radar::after{content:""; position:absolute; inset:0; border-radius:50%; border:1px solid var(--green); animation:ping 1.6s ease-out infinite;}
+  @keyframes ping{0%{transform:scale(1);opacity:.8;}100%{transform:scale(3.2);opacity:0;}}
+
+  /* search */
+  .searchwrap{position:relative; padding:10px 18px 2px; z-index:20;}
+  .searchbar{display:flex; align-items:center; gap:9px; padding:11px 14px; border-radius:16px;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); backdrop-filter:blur(10px);}
+  .searchbar.active{border-color:rgba(34,224,255,.55); box-shadow:0 0 18px rgba(34,224,255,.25);}
+  .searchbar svg{flex:0 0 auto; opacity:.7;}
+  .searchbar input{flex:1; min-width:0; background:none; border:none; outline:none; color:#fff; font-size:14.5px; font-family:inherit;}
+  .searchbar input::placeholder{color:rgba(255,255,255,.4);}
+  .sb-clear{flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:none; cursor:pointer; display:none; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.15); color:#fff; font-size:12px; line-height:1;}
+  .sb-spin{display:none; width:16px; height:16px; border-radius:50%; border:2px solid rgba(34,224,255,.25); border-top-color:var(--cyan); animation:spin .7s linear infinite;}
+  .searchbar.loading .sb-spin{display:block;} .searchbar.loading svg{display:none;}
+  .suggest{position:absolute; left:18px; right:18px; top:54px; z-index:30; display:none; gap:8px; flex-wrap:wrap;
+    background:rgba(20,20,28,.92); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:12px;}
+  .suggest.show{display:flex;}
+  .suggest .lbl{flex-basis:100%; font-size:10px; letter-spacing:.5px; text-transform:uppercase; color:var(--text2); margin-bottom:2px;}
+  .sugg{border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.05); color:#dfe3ea; cursor:pointer;
+    font-size:12.5px; padding:7px 12px; border-radius:999px;}
+  .sugg:active{transform:scale(.94);}
+
+  /* stats */
+  .stats{display:flex; gap:10px; padding:12px 18px 2px;}
+  .stat{flex:1; padding:9px 12px; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); backdrop-filter:blur(8px);}
+  .stat b{display:block; font-size:18px; font-weight:800; line-height:1.1;}
+  .stat small{font-size:9.5px; color:var(--text2); letter-spacing:.3px; text-transform:uppercase;}
+  .stat.g b{color:var(--green);} .stat.r b{color:var(--red);} .stat.c b{color:var(--cyan);}
+
+  /* filter / context row */
+  .rowbar{padding:12px 18px 4px; min-height:30px;}
+  .filterbar{display:flex; gap:9px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
+  .filterbar::-webkit-scrollbar{display:none;}
+  .chip{flex:0 0 auto; border:1px solid rgba(255,255,255,.1); cursor:pointer; font-size:13.5px; font-weight:600; color:var(--text);
+    background:rgba(255,255,255,.05); backdrop-filter:blur(8px); border-radius:999px; padding:8px 15px; display:flex; align-items:center; gap:7px; transition:.25s;}
+  .chip.on{background:linear-gradient(120deg,#00ffa3,#22e0ff); color:#04140f; border-color:transparent; box-shadow:0 6px 18px rgba(0,255,163,.4);}
+  .chip:active{transform:scale(.93);}
+  .cdot{width:6px; height:6px; border-radius:50%; background:#04140f; animation:blink .6s ease-in-out infinite alternate;}
+  @keyframes blink{from{opacity:.25;}to{opacity:1;}}
+  .ctx{display:none; align-items:center; gap:8px; font-size:12.5px; color:var(--text2);}
+  .ctx.show{display:flex;}
+  .ctx b{color:var(--cyan);} .ctx .x{margin-left:auto; cursor:pointer; color:#fff; background:rgba(255,255,255,.1); border-radius:999px; padding:4px 11px; font-weight:600;}
+
+  /* scroller + ptr */
+  .scroller{flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; position:relative; z-index:5;}
+  .scroller::-webkit-scrollbar{display:none;}
+  .ptr{height:0; display:flex; align-items:center; justify-content:center; overflow:hidden; transition:height .2s ease;}
+  .ptr.show{height:56px;}
+  .ring{width:26px; height:26px; border-radius:50%; border:2.5px solid rgba(34,224,255,.25); border-top-color:var(--cyan); border-right-color:var(--green); animation:spin .7s linear infinite; box-shadow:0 0 14px rgba(34,224,255,.4);}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:8px 18px 30px;}
+  .loading-grid,.empty{grid-column:1/-1; padding:48px 24px; text-align:center; color:var(--text2); font-size:13.5px; line-height:1.6; display:flex; flex-direction:column; align-items:center; gap:14px;}
+
+  /* DealCard */
+  .card{position:relative; border-radius:20px; cursor:pointer; overflow:hidden;
+    background:rgba(20,20,28,.55); backdrop-filter:blur(14px) saturate(140%); border:1px solid rgba(255,255,255,.09);
+    animation:pop .5s cubic-bezier(.2,.8,.3,1.1) both; transition:transform .18s, box-shadow .3s;}
+  .card:active{transform:scale(.97);}
+  @keyframes pop{from{opacity:0; transform:translateY(14px) scale(.94);} to{opacity:1; transform:none;}}
+  .card::after{content:""; position:absolute; inset:0; border-radius:20px; padding:1px; pointer-events:none;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude;}
+  .card.super{box-shadow:0 10px 26px rgba(0,255,163,.16);}
+  .card.super::after{background:linear-gradient(140deg,rgba(0,255,163,.7),transparent 45%,rgba(34,224,255,.5));}
+  .card.none{box-shadow:0 10px 26px rgba(34,224,255,.14);}
+  .card.none::after{background:linear-gradient(140deg,rgba(34,224,255,.6),transparent 50%,rgba(155,92,255,.4));}
+  .card.error{box-shadow:0 10px 26px rgba(255,51,102,.22); animation:pop .5s cubic-bezier(.2,.8,.3,1.1) both, errglow 1.6s ease-in-out infinite;}
+  .card.error::after{background:linear-gradient(140deg,rgba(255,51,102,.85),transparent 45%,rgba(155,92,255,.5));}
+  @keyframes errglow{0%,100%{box-shadow:0 8px 20px rgba(255,51,102,.18);}50%{box-shadow:0 10px 34px rgba(255,51,102,.55);}}
+
+  .media{position:relative; height:128px; overflow:hidden; background:#0c0c12;}
+  .media img{width:100%; height:100%; object-fit:cover; transform:scale(1.02); transition:transform .5s;}
+  .card:hover .media img{transform:scale(1.1);}
+  .media .scrim{position:absolute; inset:0; background:linear-gradient(180deg,transparent 35%,rgba(15,15,20,.85) 100%);}
+  .media .fallback{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px; background:linear-gradient(135deg,#15151d,#0c0c12); color:var(--text2); font-size:11px; text-align:center; padding:0 12px;}
+  .card.error .media::before{content:""; position:absolute; left:0; right:0; height:34%; z-index:2; background:linear-gradient(180deg,transparent,rgba(255,51,102,.18),transparent); animation:scan 2.6s linear infinite;}
+  @keyframes scan{0%{top:-40%;}100%{top:120%;}}
+  .badge{position:absolute; top:10px; right:10px; z-index:3; font-size:12px; font-weight:900; color:#04140f; padding:5px 10px; border-radius:999px; border:.5px solid rgba(255,255,255,.3); letter-spacing:.3px;}
+  .card.super .badge{background:linear-gradient(120deg,#00ffa3,#22e0ff); box-shadow:0 0 12px rgba(0,255,163,.7);}
+  .card.none .badge{background:linear-gradient(120deg,#22e0ff,#9b5cff); color:#04101a;}
+  .card.error .badge{background:linear-gradient(120deg,#ff3366,#ff6b8a); color:#1a0008; box-shadow:0 0 10px rgba(255,51,102,.8); animation:bpulse 1.6s ease-in-out infinite;}
+  @keyframes bpulse{0%,100%{box-shadow:0 0 8px rgba(255,51,102,.6);}50%{box-shadow:0 0 18px rgba(255,51,102,1);}}
+  .tierTag{position:absolute; top:10px; left:10px; z-index:3; font-size:9px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; padding:4px 8px; border-radius:7px; backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,.15);}
+  .card.super .tierTag{color:var(--green); background:rgba(0,255,163,.12);}
+  .card.none .tierTag{color:var(--cyan); background:rgba(34,224,255,.12);}
+  .card.error .tierTag{color:#ffb3c4; background:rgba(255,51,102,.16);}
+  .body{padding:11px 13px 13px;}
+  .title{font-size:13.5px; font-weight:600; line-height:1.25; color:#f3f4f8; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:34px; margin-bottom:8px;}
+  .prices{display:flex; align-items:baseline; gap:8px; margin-bottom:7px;}
+  .old{font-size:12px; color:var(--text2); text-decoration:line-through;}
+  .new{font-size:20px; font-weight:800; letter-spacing:-.4px;}
+  .card.super .new{color:var(--green); text-shadow:0 0 14px rgba(0,255,163,.45);}
+  .card.none .new{color:var(--cyan); text-shadow:0 0 14px rgba(34,224,255,.4);}
+  .card.error .new{color:#ff6b8a; text-shadow:0 0 14px rgba(255,51,102,.5);}
+  .store{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; color:var(--text2); text-transform:capitalize;}
+  .store .pin{width:6px; height:6px; border-radius:50%; background:var(--text2);}
+
+  /* toast */
+  .toast{position:absolute; left:50%; bottom:74px; transform:translateX(-50%) translateY(20px); z-index:60;
+    background:rgba(18,18,26,.82); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.14); color:#fff; font-size:12.5px; line-height:1.45; padding:12px 16px; border-radius:16px; max-width:330px;
+    opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; box-shadow:0 14px 40px rgba(0,0,0,.6);}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .toast b{color:var(--green);}
+  .home{position:absolute; bottom:8px; left:50%; transform:translateX(-50%); width:140px; height:5px; border-radius:3px; background:rgba(255,255,255,.5); z-index:58;}
+
+  /* ===== onboarding (opaque) ===== */
+  .onboarding{position:absolute; inset:0; z-index:45; padding-top:46px; display:none;
+    background:radial-gradient(circle at 28% 14%,rgba(0,255,163,.14),transparent 45%),radial-gradient(circle at 82% 84%,rgba(155,92,255,.16),transparent 45%),#08080d;}
+  .onboarding.show{display:block;}
+  .ob-slide{position:absolute; inset:0; padding:54px 30px 0; display:flex; flex-direction:column; align-items:center; text-align:center;
+    opacity:0; transform:translateX(26px); pointer-events:none; transition:opacity .45s, transform .45s;}
+  .ob-slide.active{opacity:1; transform:none; pointer-events:auto;}
+  .ob-top{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;}
+  .ob-orb{position:relative; width:108px; height:108px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 38% 32%,rgba(0,255,163,.3),rgba(0,255,163,0) 66%);}
+  .ob-orb.red{background:radial-gradient(circle at 38% 32%,rgba(255,51,102,.32),rgba(255,51,102,0) 66%);}
+  .ob-orb::after{content:""; position:absolute; inset:0; border-radius:50%; border:1.5px solid rgba(0,255,163,.5); animation:orbring 2.4s ease-out infinite;}
+  .ob-orb.red::after{border-color:rgba(255,51,102,.55);}
+  @keyframes orbring{0%{transform:scale(.9);opacity:.7;}100%{transform:scale(1.55);opacity:0;}}
+  .ob-orb svg{filter:drop-shadow(0 0 12px rgba(0,255,163,.6));}
+  .ob-orb.red svg{filter:drop-shadow(0 0 12px rgba(255,51,102,.7));}
+  .ob-h{font-size:25px; font-weight:900; letter-spacing:-.4px; line-height:1.15; margin:0;}
+  .ob-h .accent{color:var(--green);}
+  .ob-p{font-size:14px; line-height:1.5; color:var(--text2); max-width:300px; margin:0;}
+  .ob-feat{display:flex; flex-direction:column; gap:11px; margin-top:4px; text-align:left; width:100%; max-width:300px;}
+  .ob-feat div{display:flex; gap:11px; align-items:center; font-size:13px; color:#e7e8ee;}
+  .ob-feat .fi{flex:0 0 auto; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);}
+  .ob-foot{padding:0 0 32px; width:100%; max-width:320px; display:flex; flex-direction:column; align-items:center; gap:14px;}
+  .dots{display:flex; gap:7px;}
+  .dots i{width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.22); transition:.3s;}
+  .dots i.on{background:var(--green); width:20px; border-radius:4px;}
+  .ob-btn{width:100%; border:none; cursor:pointer; padding:15px; border-radius:16px; font-size:15px; font-weight:800; background:linear-gradient(120deg,#00ffa3,#22e0ff); color:#04140f; box-shadow:0 10px 26px rgba(0,255,163,.38);}
+  .ob-btn:active{transform:scale(.98);}
+  .ob-skip{background:none; border:none; color:var(--text2); font-size:13.5px; font-weight:600; cursor:pointer; padding:4px;}
+
+  /* iOS permission alert */
+  .permwrap{position:absolute; inset:0; z-index:95; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.45); opacity:0; pointer-events:none; transition:opacity .25s;}
+  .permwrap.show{opacity:1; pointer-events:auto;}
+  .perm{width:268px; border-radius:16px; overflow:hidden; background:rgba(44,44,50,.78); backdrop-filter:blur(28px) saturate(180%); transform:scale(.88); transition:transform .25s cubic-bezier(.2,.9,.3,1.3); border:.5px solid rgba(255,255,255,.12);}
+  .permwrap.show .perm{transform:scale(1);}
+  .perm-body{padding:19px 17px 16px; text-align:center;}
+  .perm-title{font-size:15px; font-weight:700; margin-bottom:5px;}
+  .perm-sub{font-size:12px; line-height:1.4; color:rgba(255,255,255,.72);}
+  .perm-btns{display:flex; border-top:.5px solid rgba(255,255,255,.18);}
+  .perm-btns button{flex:1; background:none; border:none; cursor:pointer; padding:12px 4px; font-size:15px; color:#2a9bff;}
+  .perm-btns button:first-child{border-right:.5px solid rgba(255,255,255,.18);}
+  .perm-btns button.bold{font-weight:700;}
+  .perm-btns button:active{background:rgba(255,255,255,.08);}
+
+  /* push banner */
+  .push{position:absolute; top:10px; left:10px; right:10px; z-index:80; display:flex; gap:11px; align-items:flex-start; padding:11px 13px;
+    background:rgba(28,28,34,.72); backdrop-filter:blur(22px) saturate(160%); border:1px solid rgba(255,255,255,.14); border-radius:22px; box-shadow:0 16px 40px rgba(0,0,0,.55);
+    transform:translateY(-160%); opacity:0; transition:transform .5s cubic-bezier(.2,.9,.3,1.2), opacity .4s; cursor:pointer;}
+  .push.show{transform:translateY(0); opacity:1;}
+  .push .ico{flex:0 0 auto; width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(140deg,#ff3366,#9b5cff); box-shadow:0 4px 12px rgba(255,51,102,.5);}
+  .push .txt{flex:1; min-width:0;}
+  .push .ptop{display:flex; justify-content:space-between; font-size:10.5px; font-weight:700; letter-spacing:.6px; color:rgba(255,255,255,.7); text-transform:uppercase; margin-bottom:1px;}
+  .push .ptitle{font-size:14px; font-weight:800; margin-bottom:1px;}
+  .push .pbody{font-size:12.5px; color:rgba(255,255,255,.8); line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+
+  /* ===== detail sheet ===== */
+  .backdrop{position:absolute; inset:0; z-index:70; background:rgba(4,4,8,.55); backdrop-filter:blur(4px); opacity:0; pointer-events:none; transition:opacity .3s;}
+  .backdrop.show{opacity:1; pointer-events:auto;}
+  .sheet{position:absolute; left:0; right:0; bottom:0; z-index:72; height:90%;
+    background:linear-gradient(180deg,rgba(24,24,32,.97),rgba(12,12,18,.99)); backdrop-filter:blur(20px);
+    border-radius:30px 30px 51px 51px; border:1px solid rgba(255,255,255,.1); border-bottom:none;
+    transform:translateY(102%); transition:transform .42s cubic-bezier(.2,.85,.25,1); overflow:hidden; display:flex; flex-direction:column;}
+  .sheet.show{transform:translateY(0);}
+  .sheet .handle{width:40px; height:5px; border-radius:3px; background:rgba(255,255,255,.28); margin:10px auto 6px; flex:0 0 auto;}
+  .sbody{overflow-y:auto; scrollbar-width:none; padding-bottom:28px;}
+  .sbody::-webkit-scrollbar{display:none;}
+
+  /* swipeable gallery */
+  .gallery{position:relative; margin:0 16px; border-radius:20px; overflow:hidden;}
+  .gtrack{display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
+  .gtrack::-webkit-scrollbar{display:none;}
+  .gtrack .slide{flex:0 0 100%; scroll-snap-align:center; height:210px; background:#0c0c12; position:relative;}
+  .gtrack .slide img{width:100%; height:100%; object-fit:cover;}
+  .gtrack .slide .fallback{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--text2); font-size:12px; background:linear-gradient(135deg,#15151d,#0c0c12);}
+  .gallery .gscrim{position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg,transparent 55%,rgba(12,12,18,.85));}
+  .gallery .tag{position:absolute; top:12px; left:12px; z-index:3; font-size:10px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; padding:5px 10px; border-radius:8px; backdrop-filter:blur(6px);}
+  .sheet.error .gallery .tag{color:#ffb3c4; background:rgba(255,51,102,.2);}
+  .sheet.super .gallery .tag{color:var(--green); background:rgba(0,255,163,.16);}
+  .sheet.none .gallery .tag{color:var(--cyan); background:rgba(34,224,255,.16);}
+  .gdots{position:absolute; bottom:10px; left:0; right:0; z-index:3; display:flex; justify-content:center; gap:6px;}
+  .gdots i{width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.4); transition:.25s;}
+  .gdots i.on{background:#fff; width:16px; border-radius:3px;}
+  .ghint{position:absolute; bottom:9px; right:12px; z-index:3; font-size:10px; color:rgba(255,255,255,.7); background:rgba(0,0,0,.35); padding:3px 8px; border-radius:999px; backdrop-filter:blur(4px);}
+
+  .scon{padding:14px 20px 0;}
+  .sheet h2{margin:2px 0 12px; font-size:19px; font-weight:800; line-height:1.25;}
+  .priceRow{display:flex; align-items:flex-end; gap:14px; margin-bottom:6px;}
+  .priceRow .now{font-size:32px; font-weight:900; letter-spacing:-1px; line-height:1;}
+  .sheet.error .priceRow .now{color:#ff6b8a; text-shadow:0 0 18px rgba(255,51,102,.5);}
+  .sheet.super .priceRow .now{color:var(--green); text-shadow:0 0 18px rgba(0,255,163,.45);}
+  .sheet.none .priceRow .now{color:var(--cyan); text-shadow:0 0 18px rgba(34,224,255,.4);}
+  .priceRow .was{font-size:15px; color:var(--text2); text-decoration:line-through; padding-bottom:3px;}
+  .priceRow .pct{margin-left:auto; font-size:14px; font-weight:900; padding:6px 12px; border-radius:999px;}
+  .sheet.error .priceRow .pct{background:linear-gradient(120deg,#ff3366,#ff6b8a); color:#1a0008;}
+  .sheet.super .priceRow .pct{background:linear-gradient(120deg,#00ffa3,#22e0ff); color:#04140f;}
+  .sheet.none .priceRow .pct{background:linear-gradient(120deg,#22e0ff,#9b5cff); color:#04101a;}
+  .saved{font-size:12.5px; color:var(--text2); margin-bottom:14px;}
+  .saved b{color:#fff;}
+  .desc{font-size:13px; line-height:1.55; color:#c9ccd6; margin:0 0 16px;}
+  .sectitle{font-size:11px; letter-spacing:.7px; text-transform:uppercase; color:var(--text2); margin:18px 0 9px; display:flex; align-items:center; gap:8px;}
+  .sectitle::before{content:""; width:14px; height:2px; border-radius:2px; background:var(--green);}
+  .spark .lbl{display:none;}
+  .specs{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:6px;}
+  .specs .row{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:13px; padding:9px 11px;}
+  .specs .row small{font-size:9.5px; color:var(--text2); text-transform:uppercase; letter-spacing:.3px;}
+  .specs .row b{display:block; font-size:13px; font-weight:600; margin-top:2px; word-break:break-word;}
+  .cta{display:block; width:100%; border:none; cursor:pointer; margin:20px 0 6px; padding:16px; border-radius:18px; font-size:15px; font-weight:800;}
+  .sheet.error .cta{background:linear-gradient(120deg,#ff3366,#ff6b8a); color:#1a0008; box-shadow:0 10px 26px rgba(255,51,102,.45);}
+  .sheet.super .cta{background:linear-gradient(120deg,#00ffa3,#22e0ff); color:#04140f; box-shadow:0 10px 26px rgba(0,255,163,.4);}
+  .sheet.none .cta{background:linear-gradient(120deg,#22e0ff,#9b5cff); color:#04101a; box-shadow:0 10px 26px rgba(34,224,255,.4);}
+  .cta:active{transform:scale(.98);}
+  .src{font-size:10.5px; color:var(--text2); text-align:center;}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="device">
+      <div class="btn-pwr"></div>
+      <div class="screen">
+        <div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+        <div class="grid-bg"></div>
+        <div class="vignette"></div>
+
+        <!-- onboarding -->
+        <div class="onboarding" id="onboarding">
+          <div class="ob-slide" id="ob0">
+            <div class="ob-top">
+              <div class="ob-orb"><svg width="52" height="52" viewBox="0 0 24 24" fill="#00ffa3"><path d="M13 2L4.5 13.5H11l-1 8.5L19.5 10H13l0-8z"/></svg></div>
+              <h1 class="ob-h">Benvenuto in<br><span class="accent">GlitchHunter</span></h1>
+              <p class="ob-p">Scoviamo gli <b style="color:#fff">errori di prezzo</b> negli store prima che spariscano.</p>
+              <div class="ob-feat">
+                <div><span class="fi">🔎</span> Monitoriamo Amazon, Unieuro e MediaWorld 24/7</div>
+                <div><span class="fi">⚡</span> Rileviamo cali di prezzo anomali in tempo reale</div>
+                <div><span class="fi">🛒</span> Tap → vai diretto allo store per l'acquisto</div>
+              </div>
+            </div>
+            <div class="ob-foot"><div class="dots"><i class="on"></i><i></i></div><button class="ob-btn" id="ob-next">Continua  →</button></div>
+          </div>
+          <div class="ob-slide" id="ob1">
+            <div class="ob-top">
+              <div class="ob-orb red"><svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ff3366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+              <h1 class="ob-h">Non perderti<br>un <span style="color:#ff6b8a">errore</span></h1>
+              <p class="ob-p">Attiva le notifiche: ti avvisiamo all'istante quando troviamo un <b style="color:#fff">Errore Prezzo</b>.</p>
+              <div class="ob-feat">
+                <div><span class="fi">🚨</span> Push immediato sugli errori di prezzo (−60% e oltre)</div>
+                <div><span class="fi">🔔</span> Avvisi, suoni e badge sull'icona</div>
+                <div><span class="fi">⚙️</span> Disattivabili quando vuoi da Impostazioni</div>
+              </div>
+            </div>
+            <div class="ob-foot"><div class="dots"><i></i><i class="on"></i></div><button class="ob-btn" id="ob-enable">Attiva le notifiche</button><button class="ob-skip" id="ob-later">Più tardi</button></div>
+          </div>
+        </div>
+
+        <!-- iOS permission alert -->
+        <div class="permwrap" id="permwrap">
+          <div class="perm">
+            <div class="perm-body"><div class="perm-title">&ldquo;GlitchHunter&rdquo; vorrebbe inviarti notifiche</div><div class="perm-sub">Le notifiche possono includere avvisi, suoni e badge. Puoi configurarle in Impostazioni.</div></div>
+            <div class="perm-btns"><button id="perm-deny">Non consentire</button><button id="perm-allow" class="bold">Consenti</button></div>
+          </div>
+        </div>
+
+        <div class="notch"></div>
+        <div class="statusbar"><div>9:41</div><div class="right"><div class="sig"><i></i><i></i><i></i><i></i></div><svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 11.5a.7.7 0 100-1.4.7.7 0 000 1.4zM3.8 7.3a6 6 0 018.4 0l1-1a7.4 7.4 0 00-10.4 0l1 1zM1.2 4.7a9.7 9.7 0 0113.6 0l1-1a11.1 11.1 0 00-15.6 0l1 1z" fill="#fff"/></svg><div class="batt"><span></span></div></div></div>
+
+        <!-- app -->
+        <div class="app">
+          <div class="header">
+            <div class="brand"><div class="glitch">GlitchHunter</div><div class="sub">Caccia agli errori di prezzo</div></div>
+            <div class="live"><span class="radar"></span>LIVE</div>
+          </div>
+
+          <div class="searchwrap">
+            <div class="searchbar" id="searchbar">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+              <div class="sb-spin"></div>
+              <input id="search" type="text" placeholder="Cerca un prodotto reale… (es. iPhone)" autocomplete="off" />
+              <button class="sb-clear" id="sb-clear">✕</button>
+            </div>
+            <div class="suggest" id="suggest"><span class="lbl">Ricerca live · catalogo reale</span></div>
+          </div>
+
+          <div class="stats">
+            <div class="stat r"><b id="st-err">0</b><small>Errori prezzo</small></div>
+            <div class="stat g"><b id="st-super">0</b><small>Super sconti</small></div>
+            <div class="stat c"><b id="st-max">0%</b><small>Calo max</small></div>
+          </div>
+
+          <div class="rowbar">
+            <div class="filterbar" id="filterbar"></div>
+            <div class="ctx" id="ctx"></div>
+          </div>
+
+          <div class="scroller" id="scroller">
+            <div class="ptr" id="ptr"><div class="ring"></div></div>
+            <div class="grid" id="grid"></div>
+          </div>
+        </div>
+
+        <div class="toast" id="toast"></div>
+
+        <!-- push -->
+        <div class="push" id="push">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M13 2L4.5 13.5H11l-1 8.5L19.5 10H13l0-8z"/></svg></div>
+          <div class="txt"><div class="ptop"><span>GlitchHunter</span><span>ora</span></div><div class="ptitle" id="push-title"></div><div class="pbody" id="push-body"></div></div>
+        </div>
+
+        <!-- detail sheet -->
+        <div class="backdrop" id="backdrop"></div>
+        <div class="sheet" id="sheet">
+          <div class="handle"></div>
+          <div class="sbody" id="sbody"></div>
+        </div>
+
+        <div class="home"></div>
+      </div>
+    </div>
+    <div class="cap">iPhone 13 Pro (390×844) · onboarding al primo avvio · <b>la ricerca è live</b> su un catalogo pubblico reale (DummyJSON) · tocca una card per specifiche + galleria · trascina giù per aggiornare</div>
+  </div>
+
+<script>
+const IMG = id => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=480&h=360&q=80`;
+const eur = new Intl.NumberFormat('it-IT', {style:'currency', currency:'EUR'});
+const tierFor = disc => disc >= 60 ? 'error' : disc >= 30 ? 'super' : 'none';
+const tierLabel = t => t === 'error' ? 'Errore Prezzo' : t === 'super' ? 'Super Sconto' : 'In offerta';
+
+const STORES = [
+  {key:null, label:"Tutti"}, {key:"amazon", label:"Amazon"},
+  {key:"unieuro", label:"Unieuro"}, {key:"mediaworld", label:"MediaWorld"},
+];
+
+// ===== curated "glitch del giorno" feed (price errors detected by the backend) =====
+function deal(o){ o.disc = Math.round((o.old - o.new)/o.old*100); o.tier = tierFor(o.disc); o.images = o.gal.map(IMG); o.img = o.images[0]; return o; }
+const CURATED = [
+  deal({id:1, store:"amazon", title:"Sony PlayStation 5 Slim Standard Edition", old:549.99, new:199.99, gal:["1606144042614-b2417e99c4e3","1578303512597-81e6cc155b3e","1527443224154-c4a3942d3acf"],
+    desc:"Console di nuova generazione con SSD ultra-rapido e ray tracing hardware. Esperienza 4K fluida e caricamenti istantanei.",
+    specs:{Modello:"PS5 Slim", Memoria:"1 TB SSD", CPU:"AMD Zen 2 8-core", GPU:"RDNA 2 · 10.3 TFLOPS", Risoluzione:'4K · 120 Hz', Connettività:"Wi-Fi 6 · BT 5.1"}}),
+  deal({id:2, store:"mediaworld", title:"Apple iPhone 15 Pro 256GB Titanio", old:1239.00, new:399.00, gal:["1592750475338-74b7b21085ab","1606220588913-b3aacb4d2f46","1546868871-7041f2a55e12"],
+    desc:"iPhone 15 Pro in titanio con chip A17 Pro, sistema a tre fotocamere e porta USB-C. Display Super Retina XDR ProMotion.",
+    specs:{Display:'6.1" OLED 120 Hz', Chip:"A17 Pro", Memoria:"256 GB", Fotocamera:"48 MP + 12 MP + 12 MP", Materiale:"Titanio", Porta:"USB-C"}}),
+  deal({id:3, store:"unieuro", title:"Apple AirPods Pro (2ª gen) USB-C", old:279.00, new:179.00, gal:["1606220588913-b3aacb4d2f46","1572569511254-d8f925fe2cbb","1592750475338-74b7b21085ab"],
+    desc:"Cancellazione del rumore adattiva, audio spaziale personalizzato e custodia di ricarica MagSafe con USB-C.",
+    specs:{Chip:"Apple H2", ANC:"Adattivo", Batteria:"6 h · 30 h con case", Resistenza:"IP54", Audio:"Spaziale", Ricarica:"USB-C · MagSafe"}}),
+  deal({id:4, store:"amazon", title:"Nintendo Switch OLED Bianco", old:349.99, new:99.99, gal:["1578303512597-81e6cc155b3e","1606144042614-b2417e99c4e3","1525385133512-2f3bdd039054"],
+    desc:"Schermo OLED da 7 pollici con colori vividi, audio migliorato e dock con porta LAN cablata.",
+    specs:{Display:'7" OLED', Memoria:"64 GB", Batteria:"4.5 – 9 h", Connettività:"Wi-Fi · BT", Dock:"LAN inclusa", Colore:"Bianco"}}),
+  deal({id:5, store:"mediaworld", title:'Samsung Smart TV QLED 55" 4K', old:699.00, new:449.00, gal:["1593359677879-a4bb92f829d1","1527443224154-c4a3942d3acf","1496181133206-80ce9b88a853"],
+    desc:"QLED 4K con Quantum HDR, processore intelligente e Tizen OS. Quattro porte HDMI 2.1 per il gaming.",
+    specs:{Pannello:"QLED 4K", Diagonale:'55"', HDR:"Quantum HDR", Refresh:"120 Hz", Sistema:"Tizen", HDMI:"4× (2.1)"}}),
+  deal({id:6, store:"unieuro", title:"Sony WH-1000XM5 Cuffie Wireless", old:419.00, new:269.00, gal:["1572569511254-d8f925fe2cbb","1606220588913-b3aacb4d2f46","1502920917128-1aa500764cbd"],
+    desc:"Cuffie over-ear con cancellazione del rumore leader di categoria, 30 ore di autonomia e audio LDAC.",
+    specs:{Tipo:"Over-ear", ANC:"Sì · V1 + QN1", Batteria:"30 h", Codec:"LDAC · AAC · SBC", Peso:"250 g", Multipoint:"Sì"}}),
+  deal({id:7, store:"amazon", title:'LG UltraGear Monitor Gaming 27" 165Hz', old:399.00, new:129.00, gal:["1527443224154-c4a3942d3acf","1496181133206-80ce9b88a853","1606144042614-b2417e99c4e3"],
+    desc:"Monitor gaming IPS QHD a 165 Hz con 1 ms GtG, HDR e compatibilità G-Sync / FreeSync.",
+    specs:{Pannello:"IPS Nano", Diagonale:'27"', Risoluzione:"2560 × 1440", Refresh:"165 Hz", Risposta:"1 ms GtG", Sync:"G-Sync · FreeSync"}}),
+  deal({id:8, store:"mediaworld", title:"GoPro HERO12 Black Action Cam", old:449.00, new:289.00, gal:["1525385133512-2f3bdd039054","1502920917128-1aa500764cbd","1578303512597-81e6cc155b3e"],
+    desc:"Action cam impermeabile con video 5.3K60, HyperSmooth 6.0 e doppio schermo touch.",
+    specs:{Sensore:'1/1.9"', Video:"5.3K · 60 fps", Foto:"27 MP", Stabilizz:"HyperSmooth 6.0", Impermeabile:"10 m", Schermo:"Doppio touch"}}),
+  deal({id:9, store:"unieuro", title:"Apple Watch Series 9 GPS 45mm", old:459.00, new:299.00, gal:["1546868871-7041f2a55e12","1592750475338-74b7b21085ab","1606220588913-b3aacb4d2f46"],
+    desc:"Smartwatch con chip S9, display Retina sempre attivo, ECG, SpO2 e resistenza all'acqua fino a 50 m.",
+    specs:{Display:"45 mm Retina", Chip:"S9 SiP", Salute:"ECG · SpO2", GPS:"Sì", Resistenza:"50 m · IP6X", Batteria:"18 h"}}),
+  deal({id:10, store:"amazon", title:"Lenovo IdeaPad Slim 3 Ryzen 5 16GB", old:699.00, new:229.00, gal:["1496181133206-80ce9b88a853","1527443224154-c4a3942d3acf","1581235720704-06d3acfcb36f"],
+    desc:"Notebook leggero con Ryzen 5, 16 GB di RAM e SSD da 512 GB. Display Full HD da 15.6 pollici.",
+    specs:{CPU:"Ryzen 5 7530U", RAM:"16 GB", Storage:"512 GB SSD", Display:'15.6" FHD', GPU:"Radeon", Sistema:"Windows 11"}}),
+];
+
+// ===== state =====
+let mode = 'feed';                 // 'feed' | 'search'
+let selectedStore = null;
+let searchResults = [];
+let searchMeta = null;
+
+const $ = id => document.getElementById(id);
+const grid = $('grid'), filterbar = $('filterbar'), ctx = $('ctx'), toast = $('toast');
+
+function currentList(){
+  if(mode === 'search') return searchResults;
+  return selectedStore ? CURATED.filter(d => d.store === selectedStore) : CURATED;
+}
+
+function renderStats(){
+  const list = currentList();
+  $('st-err').textContent   = list.filter(d=>d.tier==='error').length;
+  $('st-super').textContent = list.filter(d=>d.tier==='super').length;
+  $('st-max').textContent   = list.length ? '-' + Math.max(...list.map(d=>d.disc)) + '%' : '0%';
+}
+
+function renderFilters(){
+  filterbar.innerHTML = "";
+  STORES.forEach(s => {
+    const on = selectedStore === s.key;
+    const b = document.createElement('button');
+    b.className = "chip" + (on ? " on" : "");
+    b.innerHTML = (on ? '<span class="cdot"></span>' : '') + s.label;
+    b.onclick = () => { selectedStore = s.key; renderFilters(); renderGrid(); renderStats(); };
+    filterbar.appendChild(b);
+  });
+}
+
+const FALLBACK = `<div class="fallback"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Immagine non disponibile</div>`;
+function imgError(img){ img.style.display='none'; if(!img.parentElement.querySelector('.fallback')) img.parentElement.insertAdjacentHTML('beforeend', FALLBACK); }
+window.imgError = imgError;
+
+function badgeText(d){ return d.disc >= 1 ? '-' + Math.round(d.disc) + '%' : 'NEW'; }
+
+function renderGrid(){
+  // row bar: filters in feed, context in search
+  filterbar.style.display = mode==='search' ? 'none' : 'flex';
+  ctx.classList.toggle('show', mode==='search');
+  if(mode==='search' && searchMeta){
+    ctx.innerHTML = `🔎 <b>«${searchMeta.q}»</b> · ${searchResults.length} · ${SRC_LABEL[searchMeta.source]||''}`
+      + `<span class="x" id="ctx-x">✕ Glitch del giorno</span>`;
+    $('ctx-x').onclick = clearSearch;
+  }
+
+  const list = currentList();
+  grid.innerHTML = "";
+  if(!list.length){
+    grid.innerHTML = `<div class="empty">Nessun risultato.<br>${mode==='search'?'Prova un altro termine.':'Trascina in basso per aggiornare.'}</div>`;
+    return;
+  }
+  list.forEach((d,i) => {
+    const el = document.createElement('div');
+    el.className = "card " + d.tier;
+    el.style.animationDelay = (i*0.045) + "s";
+    el.innerHTML = `
+      <div class="media">
+        ${d.img ? `<img src="${d.img}" alt="" loading="lazy" onerror="imgError(this)">` : FALLBACK}
+        <div class="scrim"></div>
+        <div class="tierTag">${tierLabel(d.tier)}</div>
+        <div class="badge">${badgeText(d)}</div>
+      </div>
+      <div class="body">
+        <div class="title">${d.title}</div>
+        <div class="prices">
+          ${d.old>d.new ? `<span class="old">${eur.format(d.old)}</span>`:''}
+          <span class="new">${eur.format(d.new)}</span>
+        </div>
+        <div class="store"><span class="pin"></span>${d.store}</div>
+      </div>`;
+    el.onclick = () => openDetail(d);
+    grid.appendChild(el);
+  });
+}
+
+function showLoadingGrid(){
+  filterbar.style.display='none'; ctx.classList.add('show');
+  ctx.innerHTML = '🔎 Ricerca in tempo reale…';
+  grid.innerHTML = '<div class="loading-grid"><div class="ring"></div>Cerco prodotti reali…</div>';
+}
+
+// ===== detail sheet =====
+const sheet = $('sheet'), backdrop = $('backdrop'), sbody = $('sbody');
+
+function sparkPath(d){
+  const n=14, pts=[];
+  for(let i=0;i<n;i++){
+    let v;
+    if(i<n-3){ v = d.old*(1+Math.sin(i*1.3)*0.03); }
+    else { const t=(i-(n-4))/3; v = d.old+(d.new-d.old)*Math.min(1,t); }
+    pts.push(v);
+  }
+  const min=Math.min(...pts), max=Math.max(...pts), pad=(max-min)*0.15||1;
+  const x=i=>i/(n-1)*320, y=v=>52-((v-(min-pad))/((max+pad)-(min-pad)))*48;
+  const line=pts.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  return {line, area:`${line} L320,56 L0,56 Z`, lastX:x(n-1), lastY:y(pts[n-1])};
+}
+
+function openDetail(d){
+  const col = d.tier==='error' ? '#ff6b8a' : d.tier==='super' ? '#00ffa3' : '#22e0ff';
+  sheet.className = 'sheet ' + d.tier;
+
+  const imgs = (d.images && d.images.length) ? d.images : [];
+  const multi = imgs.length > 1;
+  const slides = imgs.length
+    ? imgs.map(src => `<div class="slide"><img src="${src}" alt="" loading="lazy" onerror="imgError(this)"></div>`).join('')
+    : `<div class="slide">${FALLBACK}</div>`;
+  const dots = imgs.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('');
+  const sp = sparkPath(d);
+  const specRows = Object.entries(d.specs).map(([k,v]) =>
+    `<div class="row"><small>${k}</small><b>${v}</b></div>`).join('');
+
+  sbody.innerHTML = `
+    <div class="gallery">
+      <div class="gtrack" id="gtrack">${slides}</div>
+      <div class="gscrim"></div>
+      <div class="tag">${tierLabel(d.tier)}</div>
+      ${multi ? `<div class="gdots" id="gdots">${dots}</div><div class="ghint">${imgs.length} foto · scorri →</div>` : ''}
+    </div>
+    <div class="scon">
+      <h2>${d.title}</h2>
+      <div class="priceRow">
+        <span class="now">${eur.format(d.new)}</span>
+        ${d.old>d.new ? `<span class="was">${eur.format(d.old)}</span>`:''}
+        <span class="pct">${badgeText(d)}</span>
+      </div>
+      ${d.old>d.new ? `<div class="saved">Risparmi <b>${eur.format(d.old-d.new)}</b> sul prezzo di riferimento</div>`:''}
+      ${d.desc ? `<p class="desc">${d.desc}</p>`:''}
+
+      <div class="sectitle">Andamento prezzo</div>
+      <svg width="100%" height="56" viewBox="0 0 320 56" preserveAspectRatio="none">
+        <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".35"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+        <path d="${sp.area}" fill="url(#sg)"/>
+        <path d="${sp.line}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="${sp.lastX.toFixed(1)}" cy="${sp.lastY.toFixed(1)}" r="4" fill="${col}"/>
+        <circle cx="${sp.lastX.toFixed(1)}" cy="${sp.lastY.toFixed(1)}" r="4" fill="none" stroke="${col}" stroke-opacity=".5"><animate attributeName="r" values="4;9;4" dur="1.6s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".6;0;.6" dur="1.6s" repeatCount="indefinite"/></circle>
+      </svg>
+
+      <div class="sectitle">Specifiche tecniche</div>
+      <div class="specs">${specRows}</div>
+
+      <button class="cta" id="sh-cta">Apri su ${d.store}  →</button>
+      <div class="src">${d._backend ? '● Dati live dai tuoi store · GlitchHunter' : d._live ? '● Catalogo pubblico (demo) · DummyJSON' : '● Glitch rilevato dal backend GlitchHunter'}</div>
+    </div>`;
+
+  // gallery dots sync
+  const track = $('gtrack');
+  if(track && multi){
+    track.addEventListener('scroll', () => {
+      const i = Math.round(track.scrollLeft / track.clientWidth);
+      $('gdots').querySelectorAll('i').forEach((dot,k)=>dot.classList.toggle('on', k===i));
+    }, {passive:true});
+  }
+  $('sh-cta').onclick = () => { closeDetail(); showToast(d); };
+  sbody.scrollTop = 0;
+  backdrop.classList.add('show'); sheet.classList.add('show');
+}
+function closeDetail(){ sheet.classList.remove('show'); backdrop.classList.remove('show'); }
+backdrop.addEventListener('click', closeDetail);
+
+let toastTimer;
+function showToast(d){
+  const icon = d.tier==='error' ? '🚨' : d.tier==='super' ? '🔥' : '🛒';
+  toast.innerHTML = `${icon} apro <b>${d.store}</b><br>${d.title} → ${eur.format(d.new)}`;
+  toast.classList.add('show'); clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toast.classList.remove('show'), 2300);
+}
+
+// ===== live search =====
+// 1) real GlitchHunter backend (your tracked stores) → 2) public demo catalogue → 3) local
+// Point at a deployed API by opening: index.html?api=https://glitchhunter-api.onrender.com
+const BACKEND = new URLSearchParams(location.search).get('api') || 'http://localhost:8000';
+const API = 'https://dummyjson.com/products/search';
+const searchEl = $('search'), searchbar = $('searchbar'), suggestEl = $('suggest');
+let searchTimer=null, searchCtl=null;
+
+function fetchJson(url, signal){ return fetch(url, {signal}).then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
+
+// returns mapped array on success, or null if the backend isn't reachable
+async function fetchBackend(q, signal){
+  try{
+    const arr = await fetchJson(`${BACKEND}/api/search?q=${encodeURIComponent(q)}&limit=24`, signal);
+    return Array.isArray(arr) ? arr.map(mapBackend) : null;
+  }catch(_){ return null; }
+}
+function mapBackend(r){
+  const disc = r.drop_pct || 0;
+  const newP = (r.price != null) ? r.price : (r.reference_price || 0);
+  const oldP = (r.reference_price != null) ? r.reference_price : newP;
+  return {
+    id:'be'+r.product_id, _backend:true, title:r.title, store:r.store, url:r.url,
+    images:[r.image_url].filter(Boolean), img:r.image_url,
+    old:oldP, new:newP, disc, tier:(r.tier || tierFor(disc)), desc:'',
+    specs:{
+      Store:r.store,
+      'Prezzo attuale': (newP!=null ? eur.format(newP) : '—'),
+      'Prezzo rif.': (oldP ? eur.format(oldP) : '—'),
+      'Calo': '-' + Math.round(disc) + '%',
+      'Disponibilità': (r.in_stock==null ? '—' : (r.in_stock ? 'Disponibile' : 'Esaurito')),
+      'Aggiornato': (r.last_seen ? new Date(r.last_seen).toLocaleString('it-IT') : '—'),
+    }
+  };
+}
+
+function mapApi(p){
+  const disc = p.discountPercentage || 0;
+  const newP = p.price;
+  const oldP = disc>0 ? newP/(1-disc/100) : newP;
+  const imgs = (p.images && p.images.length ? p.images : [p.thumbnail]).filter(Boolean).slice(0,6);
+  return {
+    id:'api'+p.id, _live:true, title:p.title, store:(p.brand || p.category || 'store'),
+    images:imgs, img:p.thumbnail || imgs[0], old:oldP, new:newP, disc, tier:tierFor(disc),
+    desc:p.description,
+    specs:{
+      Brand:p.brand||'—', Categoria:(p.category||'—'), SKU:p.sku||'—', Valutazione:'★ '+(p.rating??'—'),
+      Peso:(p.weight!=null?p.weight+' kg':'—'),
+      Dimensioni:(p.dimensions?`${p.dimensions.width}×${p.dimensions.depth}×${p.dimensions.height} cm`:'—'),
+      Garanzia:p.warrantyInformation||'—', Spedizione:p.shippingInformation||'—',
+      Disponibilità:p.availabilityStatus||'—', Stock:(p.stock!=null?p.stock+' pz':'—'),
+    }
+  };
+}
+
+const SRC_LABEL = {
+  backend: 'GlitchHunter · i tuoi store',
+  demo:    'catalogo pubblico (demo)',
+  offline: 'offline · catalogo locale',
+};
+async function runSearch(q){
+  mode='search'; showLoadingGrid(); searchbar.classList.add('loading');
+  if(searchCtl) searchCtl.abort();
+  searchCtl = new AbortController();
+  const signal = searchCtl.signal;
+  try{
+    // 1) real backend (the stores you actually track)
+    const back = await fetchBackend(q, signal);
+    if(back && back.length){
+      searchResults = back; searchMeta = {q, source:'backend'};
+    }else{
+      // 2) public real catalogue when the backend is offline or has no match yet
+      const data = await fetchJson(`${API}?q=${encodeURIComponent(q)}&limit=24`, signal);
+      searchResults = (data.products||[]).map(mapApi); searchMeta = {q, source:'demo'};
+    }
+  }catch(e){
+    if(e.name === 'AbortError') return;
+    // 3) total offline → local curated catalogue
+    searchResults = CURATED.filter(d => d.title.toLowerCase().includes(q.toLowerCase()));
+    searchMeta = {q, source:'offline'};
+  }finally{
+    searchbar.classList.remove('loading');
+  }
+  renderGrid(); renderStats();
+}
+function clearSearch(){
+  mode='feed'; searchEl.value=''; $('sb-clear').style.display='none'; searchResults=[]; searchMeta=null;
+  renderGrid(); renderStats();
+}
+
+searchEl.addEventListener('input', () => {
+  const q = searchEl.value.trim();
+  $('sb-clear').style.display = q ? 'flex' : 'none';
+  searchbar.classList.toggle('active', !!q);
+  clearTimeout(searchTimer);
+  if(q.length < 2){ if(mode==='search') clearSearch(); return; }
+  searchTimer = setTimeout(()=>runSearch(q), 350);
+});
+$('sb-clear').onclick = () => { clearSearch(); searchEl.focus(); };
+
+// suggestions — label (IT) → query (the public catalog is in English)
+const SUGG = [
+  {l:"iPhone",q:"iPhone"}, {l:"MacBook",q:"MacBook"}, {l:"Samsung",q:"Samsung"},
+  {l:"Smartphone",q:"phone"}, {l:"Laptop",q:"laptop"}, {l:"Tablet",q:"tablet"},
+  {l:"Orologi",q:"watch"}, {l:"Occhiali",q:"sunglasses"}, {l:"Profumi",q:"fragrance"},
+];
+SUGG.forEach(s => { const b=document.createElement('button'); b.className='sugg'; b.textContent=s.l;
+  b.onmousedown = e => { e.preventDefault(); searchEl.value=s.q; $('sb-clear').style.display='flex'; searchbar.classList.add('active'); suggestEl.classList.remove('show'); runSearch(s.q); searchEl.blur(); };
+  suggestEl.appendChild(b); });
+searchEl.addEventListener('focus', () => { if(!searchEl.value.trim()) suggestEl.classList.add('show'); });
+searchEl.addEventListener('blur',  () => setTimeout(()=>suggestEl.classList.remove('show'), 160));
+
+// ===== pull to refresh =====
+const scroller = $('scroller'), ptr = $('ptr');
+let startY=null, pulling=false;
+function onStart(y){ if(scroller.scrollTop<=0){ startY=y; pulling=true; } }
+function onMove(y){ if(!pulling||startY===null) return; (y-startY>60)?ptr.classList.add('show'):ptr.classList.remove('show'); }
+function onEnd(){ if(pulling && ptr.classList.contains('show')) doRefresh(); pulling=false; startY=null; }
+function doRefresh(){ ptr.classList.add('show'); setTimeout(()=>{
+  if(mode==='search' && searchMeta){ runSearch(searchMeta.q); } else { CURATED.sort(()=>Math.random()-0.5); }
+  renderGrid(); renderStats(); ptr.classList.remove('show'); }, 850); }
+scroller.addEventListener('touchstart', e=>onStart(e.touches[0].clientY), {passive:true});
+scroller.addEventListener('touchmove',  e=>onMove(e.touches[0].clientY),  {passive:true});
+scroller.addEventListener('touchend', onEnd);
+let md=false;
+scroller.addEventListener('mousedown', e=>{md=true; onStart(e.clientY);});
+window.addEventListener('mousemove', e=>{if(md) onMove(e.clientY);});
+window.addEventListener('mouseup', ()=>{if(md){md=false; onEnd();}});
+
+// ===== push (after consent) =====
+const push=$('push'); let pushTimer, pushDeal=null, pushLoopStarted=false, notifGranted=false;
+function showPush(d){ pushDeal=d;
+  $('push-title').textContent='🚨 Errore Prezzo!';
+  $('push-body').textContent=`${d.title.slice(0,52)} • -${d.disc}% → ${eur.format(d.new)}`;
+  push.classList.add('show'); clearTimeout(pushTimer); pushTimer=setTimeout(()=>push.classList.remove('show'),4800);
+}
+push.addEventListener('click', ()=>{ push.classList.remove('show'); if(pushDeal) openDetail(pushDeal); });
+function scheduleErrorPush(initial){ const errs=CURATED.filter(d=>d.tier==='error'); if(!errs.length) return;
+  setTimeout(()=>showPush(errs[Math.floor(Math.random()*errs.length)]), initial?1800:0); }
+function startPushLoop(){ if(pushLoopStarted) return; pushLoopStarted=true; scheduleErrorPush(true);
+  setInterval(()=>{ if(notifGranted && !sheet.classList.contains('show')) scheduleErrorPush(false); }, 13000); }
+
+// ===== onboarding =====
+const onboarding=$('onboarding'), permwrap=$('permwrap');
+function obGoto(i){ $('ob0').classList.toggle('active',i===0); $('ob1').classList.toggle('active',i===1); }
+function startOnboarding(){ onboarding.classList.add('show'); obGoto(0); }
+function finishOnboarding(granted){ notifGranted=granted; onboarding.classList.remove('show');
+  if(granted){ toast.innerHTML='✅ Notifiche attive · dispositivo registrato'; toast.classList.add('show');
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=>toast.classList.remove('show'),2300); startPushLoop(); } }
+$('ob-next').onclick   = ()=>obGoto(1);
+$('ob-enable').onclick = ()=>permwrap.classList.add('show');
+$('ob-later').onclick  = ()=>finishOnboarding(false);
+$('perm-allow').onclick= ()=>{ permwrap.classList.remove('show'); finishOnboarding(true); };
+$('perm-deny').onclick = ()=>{ permwrap.classList.remove('show'); finishOnboarding(false); };
+document.querySelector('.glitch').addEventListener('click', startOnboarding);
+
+// ===== boot =====
+renderFilters(); renderGrid(); renderStats(); startOnboarding();
+</script>
+</body>
+</html>

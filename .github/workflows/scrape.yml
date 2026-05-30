@@ -1,0 +1,51 @@
+name: Scrape (h24)
+
+# Free always-around-the-clock scraping without an always-on server.
+# GitHub's scheduler granularity is ~5 min and runs can be delayed under load.
+on:
+  schedule:
+    - cron: "*/30 * * * *"     # every 30 minutes (UTC)
+  workflow_dispatch: {}        # let you trigger a run manually from the Actions tab
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GLITCH_ERROR_THRESHOLD: "60"
+      GLITCH_SUPER_THRESHOLD: "30"
+      # Optional: set FIREBASE_CREDENTIALS_JSON as a secret to enable real pushes
+      # (requires a paid Apple Developer account for APNs). Absent => pushes skipped.
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Chromium for Playwright
+        run: python -m playwright install --with-deps chromium
+
+      # Optional real pushes: store the service-account JSON in the secret
+      # FIREBASE_CREDENTIALS_JSON. Without it, notifications.py logs and skips.
+      - name: Write Firebase credentials (optional)
+        if: ${{ secrets.FIREBASE_CREDENTIALS_JSON != '' }}
+        run: |
+          printf '%s' '${{ secrets.FIREBASE_CREDENTIALS_JSON }}' > firebase-service-account.json
+          echo "FIREBASE_CREDENTIALS=$(pwd)/firebase-service-account.json" >> "$GITHUB_ENV"
+
+      - name: Run one scrape cycle
+        run: python -m app.cli
