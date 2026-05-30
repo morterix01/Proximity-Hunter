@@ -1,0 +1,14 @@
+# Normalize line endings. Force LF on files executed by Linux/macOS CI runners
+# so CRLF never sneaks into workflow `run:` blocks or shell scripts.
+* text=auto
+
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.sh    text eol=lf
+*.py    text eol=lf
+Dockerfile text eol=lf
+*.swift text eol=lf
+
+*.png binary
+*.jpg binary
+*.webp binary
