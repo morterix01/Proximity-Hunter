@@ -17,6 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Select latest stable Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
       - name: Show Xcode version
         run: xcodebuild -version
 
@@ -25,6 +30,9 @@ jobs:
 
       - name: Generate Xcode project
         run: xcodegen generate
+
+      - name: Resolve Swift packages (Firebase)
+        run: xcodebuild -resolvePackageDependencies -project GlitchHunter.xcodeproj -scheme GlitchHunter
 
       # Build for the simulator with code signing OFF — no Apple Developer
       # account or certificates required (a real device .ipa would need both).
@@ -37,6 +45,7 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
             -derivedDataPath build \
+            -skipPackagePluginValidation \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             clean build
