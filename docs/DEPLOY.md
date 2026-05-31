@@ -67,8 +67,27 @@ git push -u origin main
 
 ## 5. Point the clients at the API
 
-- **Preview:** open `preview/index.html?api=https://glitchhunter-api.onrender.com`
+- **Preview:** open `preview/index.html?api=https://glitchhunter-api.onrender.com`, or click the
+  **⚙ gear** in the header to set/persist the backend URL.
 - **iOS app:** set `APIConfig.baseURL` in `ios/GlitchHunter/Networking/NetworkManager.swift`.
+
+## 5b. Choosing what to monitor (watchlist)
+
+The scrapers read their targets from a **watchlist table** (`/api/watch`), not hard-coded URLs:
+
+- `GET /api/watch` · `POST /api/watch {url[,store]}` · `DELETE /api/watch/{id}`
+- Store is auto-detected from the URL domain (amazon/unieuro/mediaworld).
+
+In the preview: the **⭐ I miei** chip shows your watchlist; tap **+** on any card (or **➕ Monitora**
+in the detail sheet) to add it, or **➕ Aggiungi da URL** to paste a store link. The list lives in
+the browser (`localStorage`) and is mirrored to `POST /api/watch` when the backend is reachable, so
+the next scrape cycle starts tracking it. The home also shows the curated deals feed.
+
+## 5c. Publish the preview on GitHub Pages (free public URL)
+
+`.github/workflows/pages.yml` deploys `preview/` to Pages on every push to `main`.
+One-time: repo → **Settings → Pages → Source = GitHub Actions**. Then open the published URL and
+set your API via the **⚙ gear** (or `?api=` query param).
 
 ## 6. Build the iOS app in CI
 

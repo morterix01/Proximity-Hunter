@@ -37,8 +37,9 @@ There is **no test suite and no linter configured** in this repo. Don't invent t
 The API and the scraper are separate processes that share the same DB and code:
 
 - **`uvicorn app.main:app`** — serves `/api/deals`, `/api/search`, `/api/device/register`,
-  `/api/admin/scrape`. `CORSMiddleware` is wide-open (`allow_origins=["*"]`) so the SwiftUI app
-  and the static `preview/index.html` (origin `null` from `file://`) can call it from a browser.
+  `/api/watch` (CRUD watchlist), `/api/admin/scrape`. `CORSMiddleware` is wide-open
+  (`allow_origins=["*"]`) so the SwiftUI app and the static `preview/index.html` (origin `null`
+  from `file://`) can call it from a browser.
 - **`arq app.worker.WorkerSettings`** — runs `scrape_all()` on a cron derived from
   `SCRAPE_INTERVAL_SECONDS` (default 900s → minutes {0,15,30,45}), plus on startup.
 
@@ -117,8 +118,10 @@ side and the `*_scraper.py` `store` strings (`amazon` / `unieuro` / `mediaworld`
 
 - **`parse()` returning `None` is the failure path** — return it whenever a required field
   (title, price, external id) is missing rather than raising.
-- The `*_TARGETS` lists are **placeholder URLs**. Real use means replacing them (or loading from
-  DB/config), and **site selectors drift constantly** — expect to re-tune `parse()` per store.
+- The `*_TARGETS` lists are **placeholder fallbacks**. `scrape_all()` loads the user's watchlist
+  (`Watch` table, via `/api/watch`) grouped by store and passes those URLs to `scraper.scrape(urls)`;
+  `targets()` is only used when the watchlist has no entry for that store. **Site selectors drift
+  constantly** — expect to re-tune `parse()` per store.
 - Use `util.parse_euro()` for all price strings — it handles Italian formatting (`1.299,00 €`,
   `.`/space thousands, `,` decimal). Don't hand-roll price parsing.
 - `scrapers/proxy.py` is a stub. Real proxying = `USE_PROXY=true` + `SCRAPER_API_KEY` (wired for

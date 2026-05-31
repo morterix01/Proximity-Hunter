@@ -36,6 +36,22 @@ class SearchResultOut(BaseModel):
     last_seen: datetime | None = None      # when this price was last scraped
 
 
+class WatchIn(BaseModel):
+    url: str = Field(min_length=8, max_length=1024)
+    store: str | None = None   # auto-detected from the URL domain when omitted
+    title: str | None = None
+
+
+class WatchOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    store: str
+    url: str
+    title: str | None = None
+    created_at: datetime
+
+
 class DeviceRegisterIn(BaseModel):
     fcm_token: str = Field(min_length=8, max_length=512)
     platform: str = "ios"

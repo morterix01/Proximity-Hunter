@@ -87,3 +87,16 @@ class Device(Base):
     platform: Mapped[str] = mapped_column(String(16), default="ios")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     last_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Watch(Base):
+    """A product URL the user chose to monitor. Scrapers pull their targets from
+    here (per store) so the watchlist is editable from the app, not hard-coded."""
+
+    __tablename__ = "watchlist"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    store: Mapped[str] = mapped_column(String(32), index=True)   # amazon | unieuro | mediaworld
+    url: Mapped[str] = mapped_column(String(1024), unique=True)
+    title: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

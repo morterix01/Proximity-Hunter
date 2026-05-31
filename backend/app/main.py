@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .database import init_db
 from .notifications import init_firebase
-from .routers import deals, devices, search
+from .routers import deals, devices, search, watch
 from .tasks import scrape_all
 
 logging.basicConfig(level=logging.INFO)
@@ -44,6 +44,7 @@ app.add_middleware(
 app.include_router(deals.router)
 app.include_router(devices.router)
 app.include_router(search.router)
+app.include_router(watch.router)
 
 
 @app.get("/health")

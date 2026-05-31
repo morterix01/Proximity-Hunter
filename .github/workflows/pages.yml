@@ -1,0 +1,33 @@
+name: Deploy preview to Pages
+
+# Publishes preview/index.html to GitHub Pages (free public URL for the mockup).
+# One-time setup: repo → Settings → Pages → Build and deployment → Source = GitHub Actions.
+on:
+  push:
+    branches: [main]
+    paths: ["preview/**", ".github/workflows/pages.yml"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: preview            # serve the preview/ folder as the site root
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -281,6 +281,28 @@
   .sheet.none .cta{background:linear-gradient(120deg,#22e0ff,#9b5cff); color:#04101a; box-shadow:0 10px 26px rgba(34,224,255,.4);}
   .cta:active{transform:scale(.98);}
   .src{font-size:10.5px; color:var(--text2); text-align:center;}
+  /* secondary "monitora" button in detail */
+  .cta2{display:flex; align-items:center; justify-content:center; gap:8px; width:100%; border:1px solid rgba(255,255,255,.16);
+    cursor:pointer; margin-top:18px; padding:14px; border-radius:16px; font-size:14.5px; font-weight:700;
+    background:rgba(255,255,255,.05); color:#fff;}
+  .cta2.on{background:rgba(0,255,163,.12); border-color:rgba(0,255,163,.5); color:var(--green);}
+  .cta2:active{transform:scale(.98);}
+
+  /* watch toggle on a card */
+  .wbtn{position:absolute; right:10px; bottom:10px; z-index:4; width:30px; height:30px; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:16px; line-height:1; border:1px solid rgba(255,255,255,.25);
+    background:rgba(8,8,12,.6); backdrop-filter:blur(6px); color:#fff;}
+  .wbtn.on{background:linear-gradient(120deg,#00ffa3,#22e0ff); color:#04140f; border-color:transparent;}
+  .wbtn:active{transform:scale(.88);}
+
+  /* header settings gear */
+  .gear{width:30px; height:30px; border-radius:50%; cursor:pointer; border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05); color:#cfd2da; font-size:14px; display:flex; align-items:center; justify-content:center; margin-left:8px;}
+  .gear:active{transform:scale(.9);}
+  .hdr-actions{display:flex; align-items:center;}
+  .addurl{display:flex; gap:8px; align-items:center; justify-content:center; width:100%; border:1px dashed rgba(255,255,255,.25);
+    background:rgba(255,255,255,.03); color:#dfe3ea; cursor:pointer; padding:12px; border-radius:14px; font-size:13px; font-weight:600; margin-bottom:6px;}
+  .addurl:active{transform:scale(.98);}
 </style>
 </head>
 <body>
@@ -337,7 +359,7 @@
         <div class="app">
           <div class="header">
             <div class="brand"><div class="glitch">GlitchHunter</div><div class="sub">Caccia agli errori di prezzo</div></div>
-            <div class="live"><span class="radar"></span>LIVE</div>
+            <div class="hdr-actions"><div class="live"><span class="radar"></span>LIVE</div><div class="gear" id="gear" title="Imposta URL backend">⚙</div></div>
           </div>
 
           <div class="searchwrap">
@@ -443,8 +465,39 @@ let searchMeta = null;
 const $ = id => document.getElementById(id);
 const grid = $('grid'), filterbar = $('filterbar'), ctx = $('ctx'), toast = $('toast');
 
+// ===== watchlist: localStorage is the source of truth; backend sync is best-effort =====
+const WKEY = 'gh_watch';
+function wList(){ try{ return JSON.parse(localStorage.getItem(WKEY)) || []; }catch(_){ return []; } }
+function wSave(a){ localStorage.setItem(WKEY, JSON.stringify(a)); }
+function wHas(id){ return wList().some(x => x.id === id); }
+function wCount(){ return wList().length; }
+function snapshot(d){
+  return {id:d.id, title:d.title, store:d.store, url:d.url||'', images:d.images||[], img:d.img||'',
+          old:d.old, new:d.new, disc:d.disc, tier:d.tier, specs:d.specs||{}, desc:d.desc||'',
+          _live:d._live, _backend:d._backend};
+}
+async function wAdd(d){
+  const a = wList(); if(a.some(x => x.id === d.id)) return;
+  const snap = snapshot(d); a.unshift(snap); wSave(a);
+  if(snap.url){                                   // only real store URLs can be monitored server-side
+    try{
+      const r = await fetch(`${BACKEND}/api/watch`, {method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({url:snap.url, title:snap.title})});
+      if(r.ok){ const w = await r.json(); const arr = wList(); const it = arr.find(x=>x.id===d.id);
+        if(it){ it._watchId = w.id; wSave(arr); } }
+    }catch(_){}
+  }
+}
+async function wRemove(id){
+  const a = wList(); const it = a.find(x => x.id === id);
+  if(it && it._watchId){ try{ await fetch(`${BACKEND}/api/watch/${it._watchId}`, {method:'DELETE'}); }catch(_){} }
+  wSave(a.filter(x => x.id !== id));
+}
+async function wToggle(d){ if(wHas(d.id)) await wRemove(d.id); else await wAdd(d); }
+
 function currentList(){
   if(mode === 'search') return searchResults;
+  if(selectedStore === 'watch') return wList();
   return selectedStore ? CURATED.filter(d => d.store === selectedStore) : CURATED;
 }
 
@@ -457,6 +510,14 @@ function renderStats(){
 
 function renderFilters(){
   filterbar.innerHTML = "";
+  // ⭐ watchlist chip first
+  const wc = document.createElement('button');
+  const won = selectedStore === 'watch';
+  wc.className = "chip" + (won ? " on" : "");
+  wc.innerHTML = `⭐ I miei${wCount() ? ` (${wCount()})` : ''}`;
+  wc.onclick = () => { selectedStore = 'watch'; mode='feed'; renderFilters(); renderGrid(); renderStats(); };
+  filterbar.appendChild(wc);
+
   STORES.forEach(s => {
     const on = selectedStore === s.key;
     const b = document.createElement('button');
@@ -485,11 +546,25 @@ function renderGrid(){
 
   const list = currentList();
   grid.innerHTML = "";
+
+  if(selectedStore === 'watch'){
+    const add = document.createElement('button');
+    add.className = 'addurl'; add.style.gridColumn = '1/-1';
+    add.innerHTML = '➕ Aggiungi prodotto da URL (Amazon · Unieuro · MediaWorld)';
+    add.onclick = addByUrl;
+    grid.appendChild(add);
+  }
+
   if(!list.length){
-    grid.innerHTML = `<div class="empty">Nessun risultato.<br>${mode==='search'?'Prova un altro termine.':'Trascina in basso per aggiornare.'}</div>`;
+    const msg = selectedStore==='watch'
+      ? 'Nessun prodotto monitorato.<br>Cerca un prodotto e tocca <b>+</b>, oppure aggiungi un URL qui sopra.'
+      : (mode==='search' ? 'Nessun risultato.<br>Prova un altro termine.' : 'Nessun risultato.<br>Trascina in basso per aggiornare.');
+    grid.insertAdjacentHTML('beforeend', `<div class="empty">${msg}</div>`);
     return;
   }
+
   list.forEach((d,i) => {
+    const watched = wHas(d.id);
     const el = document.createElement('div');
     el.className = "card " + d.tier;
     el.style.animationDelay = (i*0.045) + "s";
@@ -499,16 +574,20 @@ function renderGrid(){
         <div class="scrim"></div>
         <div class="tierTag">${tierLabel(d.tier)}</div>
         <div class="badge">${badgeText(d)}</div>
+        <div class="wbtn ${watched?'on':''}">${watched?'✓':'+'}</div>
       </div>
       <div class="body">
         <div class="title">${d.title}</div>
         <div class="prices">
           ${d.old>d.new ? `<span class="old">${eur.format(d.old)}</span>`:''}
-          <span class="new">${eur.format(d.new)}</span>
+          ${d.new>0 ? `<span class="new">${eur.format(d.new)}</span>`
+                    : `<span class="new" style="font-size:13px;color:var(--text2)">In attesa…</span>`}
         </div>
         <div class="store"><span class="pin"></span>${d.store}</div>
       </div>`;
     el.onclick = () => openDetail(d);
+    const wb = el.querySelector('.wbtn');
+    wb.onclick = (e) => { e.stopPropagation(); wToggle(d).then(() => { renderFilters(); renderGrid(); renderStats(); }); };
     grid.appendChild(el);
   });
 }
@@ -560,7 +639,7 @@ function openDetail(d){
     <div class="scon">
       <h2>${d.title}</h2>
       <div class="priceRow">
-        <span class="now">${eur.format(d.new)}</span>
+        <span class="now">${d.new>0 ? eur.format(d.new) : '—'}</span>
         ${d.old>d.new ? `<span class="was">${eur.format(d.old)}</span>`:''}
         <span class="pct">${badgeText(d)}</span>
       </div>
@@ -579,6 +658,7 @@ function openDetail(d){
       <div class="sectitle">Specifiche tecniche</div>
       <div class="specs">${specRows}</div>
 
+      <button class="cta2 ${wHas(d.id)?'on':''}" id="sh-watch">${wHas(d.id)?'✓ Monitorato — tocca per rimuovere':'➕ Monitora questo prodotto'}</button>
       <button class="cta" id="sh-cta">Apri su ${d.store}  →</button>
       <div class="src">${d._backend ? '● Dati live dai tuoi store · GlitchHunter' : d._live ? '● Catalogo pubblico (demo) · DummyJSON' : '● Glitch rilevato dal backend GlitchHunter'}</div>
     </div>`;
@@ -592,6 +672,14 @@ function openDetail(d){
     }, {passive:true});
   }
   $('sh-cta').onclick = () => { closeDetail(); showToast(d); };
+  const wbtn = $('sh-watch');
+  wbtn.onclick = async () => {
+    await wToggle(d);
+    const on = wHas(d.id);
+    wbtn.classList.toggle('on', on);
+    wbtn.textContent = on ? '✓ Monitorato — tocca per rimuovere' : '➕ Monitora questo prodotto';
+    renderFilters(); renderStats();
+  };
   sbody.scrollTop = 0;
   backdrop.classList.add('show'); sheet.classList.add('show');
 }
@@ -608,8 +696,10 @@ function showToast(d){
 
 // ===== live search =====
 // 1) real GlitchHunter backend (your tracked stores) → 2) public demo catalogue → 3) local
-// Point at a deployed API by opening: index.html?api=https://glitchhunter-api.onrender.com
-const BACKEND = new URLSearchParams(location.search).get('api') || 'http://localhost:8000';
+// Point at a deployed API via the ⚙ gear, or open: index.html?api=https://...onrender.com
+let BACKEND = localStorage.getItem('gh_api')
+  || new URLSearchParams(location.search).get('api')
+  || 'http://localhost:8000';
 const API = 'https://dummyjson.com/products/search';
 const searchEl = $('search'), searchbar = $('searchbar'), suggestEl = $('suggest');
 let searchTimer=null, searchCtl=null;
@@ -761,6 +851,31 @@ $('ob-later').onclick  = ()=>finishOnboarding(false);
 $('perm-allow').onclick= ()=>{ permwrap.classList.remove('show'); finishOnboarding(true); };
 $('perm-deny').onclick = ()=>{ permwrap.classList.remove('show'); finishOnboarding(false); };
 document.querySelector('.glitch').addEventListener('click', startOnboarding);
+
+// ===== settings gear (backend URL) + add-by-URL =====
+function flash(html, ms=2200){ toast.innerHTML = html; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(()=>toast.classList.remove('show'), ms); }
+$('gear').onclick = () => {
+  const cur = localStorage.getItem('gh_api') || BACKEND;
+  const v = prompt('URL del backend GlitchHunter\n(es. https://glitchhunter-api.onrender.com — vuoto = localhost)', cur);
+  if(v === null) return;
+  const url = v.trim().replace(/\/+$/,'');
+  if(url){ localStorage.setItem('gh_api', url); BACKEND = url; }
+  else { localStorage.removeItem('gh_api'); BACKEND = 'http://localhost:8000'; }
+  flash('⚙ Backend impostato:<br><b>'+BACKEND+'</b>');
+};
+async function addByUrl(){
+  const url = (prompt("Incolla l'URL del prodotto da monitorare (Amazon · Unieuro · MediaWorld):") || '').trim();
+  if(!url) return;
+  const store = /amazon\./i.test(url) ? 'amazon' : /unieuro\./i.test(url) ? 'unieuro' : /mediaworld\./i.test(url) ? 'mediaworld' : 'store';
+  const item = {id:'url'+Date.now(), _backend:true, url, store,
+    title:url.replace(/^https?:\/\//,'').replace(/^www\./,'').slice(0,60),
+    images:[], img:'', old:0, new:0, disc:0, tier:'none',
+    specs:{Store:store, URL:url, Stato:'In attesa del primo scraping'}, desc:''};
+  await wAdd(item);
+  selectedStore = 'watch'; mode = 'feed';
+  renderFilters(); renderGrid(); renderStats();
+  flash('⭐ Aggiunto a <b>I miei prodotti</b>');
+}
 
 // ===== boot =====
 renderFilters(); renderGrid(); renderStats(); startOnboarding();

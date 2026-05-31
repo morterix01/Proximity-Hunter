@@ -1,7 +1,10 @@
 import logging
 
+from sqlalchemy import select
+
 from .database import SessionLocal
 from .ingest import ingest_batch
+from .models import Watch
 from .notifications import notify_error_deal
 from .scrapers import SCRAPERS
 
@@ -18,9 +21,16 @@ async def scrape_all() -> dict:
     pushed = 0
 
     async with SessionLocal() as db:
+        # Pull the user's watchlist; group target URLs by store.
+        watch_rows = (await db.execute(select(Watch.store, Watch.url))).all()
+        watch_by_store: dict[str, list[str]] = {}
+        for store, url in watch_rows:
+            watch_by_store.setdefault(store, []).append(url)
+
         for scraper in SCRAPERS:
+            urls = watch_by_store.get(scraper.store)   # None => scraper uses its defaults
             try:
-                items = await scraper.scrape()
+                items = await scraper.scrape(urls)
             except Exception:
                 log.exception("scraper %s crashed", scraper.store)
                 continue

@@ -31,14 +31,20 @@ class BaseScraper(ABC):
     def parse(self, html: str, url: str) -> ScrapedItem | None:
         ...
 
-    async def scrape(self) -> list[ScrapedItem]:
+    async def scrape(self, urls: list[str] | None = None) -> list[ScrapedItem]:
+        """Scrape the given URLs, or `self.targets()` when none are supplied.
+
+        `scrape_all()` passes the user's watchlist URLs for this store; falling
+        back to `targets()` keeps the hard-coded defaults working on an empty list.
+        """
         items: list[ScrapedItem] = []
         proxy = proxy_for_playwright()
+        targets = urls if urls else self.targets()
 
         async with async_playwright() as pw:
             browser = await pw.chromium.launch(headless=True, proxy=proxy)
             try:
-                for url in self.targets():
+                for url in targets:
                     context = await browser.new_context(
                         user_agent=random_user_agent(),
                         locale="it-IT",
