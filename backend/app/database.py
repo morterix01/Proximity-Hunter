@@ -19,7 +19,14 @@ def _engine_url_and_args():
     ssl_flag = (url.query.get("sslmode") or url.query.get("ssl") or "").lower()
     if ssl_flag in {"require", "verify-ca", "verify-full", "true", "1", "prefer", "allow"}:
         connect_args["ssl"] = True
-        url = url.difference_update_query(["sslmode", "ssl"])
+
+    # Drop libpq-only query params asyncpg doesn't accept. ssl/sslmode are handled
+    # above; channel binding is negotiated automatically under TLS.
+    url = url.difference_update_query(["sslmode", "ssl", "channel_binding"])
+
+    # Play safe behind transaction poolers (Neon "-pooler", Supabase, PgBouncer):
+    # disable asyncpg's prepared-statement cache, which transaction pooling breaks.
+    connect_args["statement_cache_size"] = 0
     return url, connect_args
 
 

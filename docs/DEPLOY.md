@@ -65,6 +65,20 @@ git push -u origin main
 > The free API image has **no browser**, so `/api/admin/scrape` can't scrape there — that's
 > what the Actions cron is for. The API only reads the DB.
 
+### Keep it always-on (no 15-min spin-down)
+Render free sleeps after ~15 min idle. To keep it warm for free, the repo ships
+`.github/workflows/keepalive.yml` which pings `/health` every 10 min:
+1. Repo → **Settings → Secrets and variables → Actions → Variables → New variable**
+   - Name `API_URL`, value `https://<your-service>.onrender.com`.
+2. That's it — the ping runs on a cron and keeps the dyno awake (within Render's free
+   ~750 instance-hours/month, enough for one always-warm service).
+3. More reliable alternative: a free uptime monitor (cron-job.org, UptimeRobot) hitting the same
+   `/health` URL every 5 min.
+
+> Want a host with **no spin-down at all**? **Fly.io** (free allowance, keeps a machine running —
+> requires a card on file but doesn't charge for a tiny app) or an **Oracle Cloud Always Free** VM
+> (truly free 24/7, heavier setup). Render + keep-alive is the simplest cardless option.
+
 ## 5. Point the clients at the API
 
 - **Preview:** open `preview/index.html?api=https://glitchhunter-api.onrender.com`, or click the
