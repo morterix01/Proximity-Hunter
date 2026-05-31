@@ -106,13 +106,23 @@ set your API via the **⚙ gear** (or `?api=` query param).
 ## 6. Build the iOS app in CI
 
 `.github/workflows/ios.yml` runs on every push touching `ios/**`. It installs XcodeGen,
-generates `GlitchHunter.xcodeproj` from `ios/project.yml`, and builds for the iOS Simulator
-**unsigned**. To build locally:
+generates `GlitchHunter.xcodeproj` from `ios/project.yml`, builds **unsigned for device**, and
+uploads an **unsigned `.ipa`** as a run artifact (`GlitchHunter-unsigned-ipa`). To build locally:
 
 ```bash
 brew install xcodegen
 cd ios && xcodegen generate && open GlitchHunter.xcodeproj
 ```
+
+### Install on a real iPhone for free (no paid account, no Mac)
+1. Open the green **iOS build** run → **Artifacts** → download `GlitchHunter-unsigned-ipa`, unzip → `GlitchHunter-unsigned.ipa`.
+2. On Windows install **Sideloadly** (+ iTunes for USB drivers) or **AltStore**.
+3. Plug in the iPhone, drag the `.ipa` in, sign in with your **free Apple ID**, Start.
+4. iPhone → **Settings → General → VPN & Device Management** → trust your developer profile.
+
+Free-Apple-ID limits: the app **expires after 7 days** (reinstall; AltStore can auto-refresh over
+Wi-Fi) and **push notifications don't work** (APNs needs the paid account). Firebase is excluded
+from this build (see `ios/project.yml`); re-enable it once you have the paid account.
 
 ## 7. (Optional, paid) Real push notifications
 
