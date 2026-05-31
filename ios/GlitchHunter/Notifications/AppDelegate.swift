@@ -1,7 +1,16 @@
-import FirebaseCore
-import FirebaseMessaging
 import UIKit
 import UserNotifications
+#if canImport(FirebaseCore)
+import FirebaseCore
+#endif
+#if canImport(FirebaseMessaging)
+import FirebaseMessaging
+#endif
+
+// NOTE: Firebase powers FCM push, which requires a paid Apple Developer account
+// (APNs). It's wrapped in `#if canImport(...)` so the app builds for free in CI
+// without the Firebase package linked. Add the Firebase SPM packages (see
+// ios/project.yml) + GoogleService-Info.plist to activate real pushes.
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
 
@@ -9,8 +18,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        #if canImport(FirebaseCore)
         FirebaseApp.configure()
+        #endif
+        #if canImport(FirebaseMessaging)
         Messaging.messaging().delegate = self
+        #endif
 
         UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(
@@ -27,7 +40,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
+        #if canImport(FirebaseMessaging)
         Messaging.messaging().apnsToken = deviceToken
+        #endif
     }
 
     func application(
@@ -38,8 +53,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
-// MARK: - FCM
+// MARK: - FCM (only when Firebase is linked)
 
+#if canImport(FirebaseMessaging)
 extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         guard let token = fcmToken else { return }
@@ -47,8 +63,9 @@ extension AppDelegate: MessagingDelegate {
         Task { try? await NetworkManager.shared.registerDevice(token: token) }
     }
 }
+#endif
 
-// MARK: - Foreground presentation + taps
+// MARK: - Foreground presentation + taps (UserNotifications only, no Firebase)
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(

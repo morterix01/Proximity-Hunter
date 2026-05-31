@@ -8,10 +8,15 @@ options:
     iOS: "16.0"
   createIntermediateGroups: true
 
-packages:
-  Firebase:
-    url: https://github.com/firebase/firebase-ios-sdk
-    from: "10.0.0"
+# Firebase (FCM push) is optional and only works with a paid Apple Developer
+# account. Left out so CI builds free & unsigned. To enable real pushes:
+# uncomment this block + the target `dependencies` below, then add
+# GoogleService-Info.plist to the target. The app code uses #if canImport(...)
+# so it compiles either way.
+# packages:
+#   Firebase:
+#     url: https://github.com/firebase/firebase-ios-sdk
+#     from: "10.0.0"
 
 targets:
   GlitchHunter:
@@ -44,11 +49,11 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"      # iPhone
         SWIFT_VERSION: "5.0"
         GENERATE_INFOPLIST_FILE: NO
-    dependencies:
-      - package: Firebase
-        product: FirebaseCore
-      - package: Firebase
-        product: FirebaseMessaging
+    # dependencies:                 # enable with Firebase (see note at top)
+    #   - package: Firebase
+    #     product: FirebaseCore
+    #   - package: Firebase
+    #     product: FirebaseMessaging
 
 schemes:
   GlitchHunter:
