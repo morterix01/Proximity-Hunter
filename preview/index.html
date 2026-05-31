@@ -96,7 +96,8 @@
 
   /* filter / context row */
   .rowbar{padding:12px 18px 4px; min-height:30px;}
-  .filterbar{display:flex; gap:9px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
+  .filterbar{display:flex; gap:9px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; cursor:grab; scroll-behavior:smooth;}
+  .filterbar:active{cursor:grabbing;}
   .filterbar::-webkit-scrollbar{display:none;}
   .chip{flex:0 0 auto; border:1px solid rgba(255,255,255,.1); cursor:pointer; font-size:13.5px; font-weight:600; color:var(--text);
     background:rgba(255,255,255,.05); backdrop-filter:blur(8px); border-radius:999px; padding:8px 15px; display:flex; align-items:center; gap:7px; transition:.25s;}
@@ -876,6 +877,23 @@ async function addByUrl(){
   renderFilters(); renderGrid(); renderStats();
   flash('⭐ Aggiunto a <b>I miei prodotti</b>');
 }
+
+// ===== make the filter bar scrollable with mouse too (wheel + drag) =====
+(function makeHScroll(el){
+  // vertical wheel → horizontal scroll
+  el.addEventListener('wheel', e => {
+    if(el.scrollWidth <= el.clientWidth) return;
+    if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){ el.scrollLeft += e.deltaY; e.preventDefault(); }
+  }, {passive:false});
+  // click-drag to scroll (mouse only; touch uses native scrolling). Suppress the
+  // chip click when the user actually dragged.
+  let down=false, sx=0, sl=0, moved=false;
+  el.addEventListener('pointerdown', e => { if(e.pointerType!=='mouse') return; down=true; moved=false; sx=e.clientX; sl=el.scrollLeft; });
+  el.addEventListener('pointermove', e => { if(!down||e.pointerType!=='mouse') return; const dx=e.clientX-sx; if(Math.abs(dx)>4) moved=true; el.scrollLeft = sl - dx; });
+  const up = () => { down=false; };
+  el.addEventListener('pointerup', up); el.addEventListener('pointerleave', up);
+  el.addEventListener('click', e => { if(moved){ e.stopPropagation(); e.preventDefault(); moved=false; } }, true);
+})(filterbar);
 
 // ===== boot =====
 renderFilters(); renderGrid(); renderStats(); startOnboarding();
