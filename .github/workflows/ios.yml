@@ -38,7 +38,7 @@ jobs:
       # account or certificates required (a real device .ipa would need both).
       - name: Build (iOS Simulator, unsigned)
         run: |
-          set -o pipefail
+          set +e
           xcodebuild \
             -project GlitchHunter.xcodeproj \
             -scheme GlitchHunter \
@@ -48,4 +48,10 @@ jobs:
             -skipPackagePluginValidation \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            clean build
+            clean build 2>&1 | tee build.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            grep -E "error:|fatal error|Undefined symbol|ld: |No such module" build.log \
+              | head -10 | while IFS= read -r l; do echo "::error::$l"; done
+          fi
+          exit "$status"
