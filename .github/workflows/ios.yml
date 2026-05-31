@@ -76,5 +76,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: GlitchHunter-unsigned-ipa
-          path: GlitchHunter-unsigned.ipa
+          path: ios/GlitchHunter-unsigned.ipa   # action paths are relative to repo root, not the job working-directory
+          if-no-files-found: error
           retention-days: 30
