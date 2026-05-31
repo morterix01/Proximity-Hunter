@@ -39,14 +39,14 @@ jobs:
 
       # Build for the simulator with code signing OFF — no Apple Developer
       # account or certificates required (a real device .ipa would need both).
-      - name: Build (iOS device, unsigned)
+      - name: Build (iOS device, Release, unsigned)
         run: |
           set +e
           xcodebuild \
             -project GlitchHunter.xcodeproj \
             -scheme GlitchHunter \
             -destination 'generic/platform=iOS' \
-            -configuration Debug \
+            -configuration Release \
             -derivedDataPath build \
             -clonedSourcePackagesDirPath build/spm \
             -skipPackagePluginValidation \
