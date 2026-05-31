@@ -11,7 +11,7 @@ options:
 packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    minVersion: "10.0.0"
+    from: "10.0.0"
 
 targets:
   GlitchHunter:

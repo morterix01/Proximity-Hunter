@@ -20,6 +20,7 @@ jobs:
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      FIREBASE_CREDENTIALS_JSON: ${{ secrets.FIREBASE_CREDENTIALS_JSON }}
       GLITCH_ERROR_THRESHOLD: "60"
       GLITCH_SUPER_THRESHOLD: "30"
       # Optional: set FIREBASE_CREDENTIALS_JSON as a secret to enable real pushes
@@ -42,9 +43,9 @@ jobs:
       # Optional real pushes: store the service-account JSON in the secret
       # FIREBASE_CREDENTIALS_JSON. Without it, notifications.py logs and skips.
       - name: Write Firebase credentials (optional)
-        if: ${{ secrets.FIREBASE_CREDENTIALS_JSON != '' }}
+        if: ${{ env.FIREBASE_CREDENTIALS_JSON != '' }}
         run: |
-          printf '%s' '${{ secrets.FIREBASE_CREDENTIALS_JSON }}' > firebase-service-account.json
+          printf '%s' "$FIREBASE_CREDENTIALS_JSON" > firebase-service-account.json
           echo "FIREBASE_CREDENTIALS=$(pwd)/firebase-service-account.json" >> "$GITHUB_ENV"
 
       - name: Run one scrape cycle
